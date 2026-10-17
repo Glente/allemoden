@@ -1,0 +1,17 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /games/{gameId} {
+      allow read: if true;
+      allow create: if request.auth != null && request.resource.data.hostUid == request.auth.uid;
+      allow update: if request.auth != null && resource.data.hostUid == request.auth.uid
+                    && request.resource.data.hostUid == request.auth.uid;
+      match /votes/{uid} {
+        allow read: if true;
+        allow write: if request.auth != null && request.auth.uid == uid
+                     && request.resource.data.keys().hasOnly(['roundId', 'value', 'at'])
+                     && request.resource.data.value is number;
+      }
+    }
+  }
+}
